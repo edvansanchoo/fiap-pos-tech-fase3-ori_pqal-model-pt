@@ -14,7 +14,8 @@ MVP de assistente clínico em português que combina **LangChain**, **PostgreSQL
 ```
 ori_pqal-model-pt-20260912T125149Z-1-001/
 ├── README.md                 ← este documento
-├── reame-conversao.md        ← redireciona para ori_pqal-model-pt/README.md
+├── MODEL.md                  ← guia do modelo + importação Ollama
+├── reame-conversao.md        ← redireciona para MODEL.md
 ├── .gitignore                ← exclui modelo, .env, datasets .jsonl
 │
 ├── langchain/                ← aplicação principal (chat + chain)
@@ -60,12 +61,8 @@ ori_pqal-model-pt-20260912T125149Z-1-001/
 │   ├── specs/                ← especificação arquitetural
 │   └── plans/                ← plano de implementação
 │
-├── ori-pqal-model-pt.zip     ← pacote completo do modelo (~151 MB, Git LFS)
-└── ori_pqal-model-pt/        ← configs + README (pesos vêm do zip)
-    ├── README.md             ← conversão para Ollama + instruções de download
-    ├── Modelfile
-    ├── adapter_config.json
-    └── tokenizer_config.json
+└── ori-pqal-model-pt.zip     ← pacote completo do modelo (~151 MB, Git LFS)
+    └── (extrair → pasta ori_pqal-model-pt/ local, não versionada)
 ```
 
 ---
@@ -301,18 +298,13 @@ Documentação gerada durante o desenvolvimento do MVP:
 
 ---
 
-## Pasta `ori_pqal-model-pt/`
+## Modelo `ori-pqal-pt`
 
 Adapter LoRA fine-tuned para **PQAL em português** (respostas sim/não/talvez com contexto científico).
 
-| Arquivo | Função |
-|---------|--------|
-| `adapter_config.json` | Configuração do adapter PEFT |
-| `model.safetensors` | Pesos do adapter |
-| `tokenizer.json` | Tokenizer |
-| `Modelfile` | Definição para import no Ollama |
+Distribuído apenas como **`ori-pqal-model-pt.zip`** (~151 MB, Git LFS). A pasta `ori_pqal-model-pt/` **não está no git** — extraia o zip localmente.
 
-Distribuído como **`ori-pqal-model-pt.zip`** (~151 MB, Git LFS). Extraia na raiz do projeto e siga [`ori_pqal-model-pt/README.md`](ori_pqal-model-pt/README.md) para importar no Ollama.
+Guia completo: [`MODEL.md`](MODEL.md).
 
 O modelo foi treinado com dataset no formato:
 
@@ -361,7 +353,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ```powershell
 ollama pull llama3.1:8b
-# ori-pqal-pt: extrair ori-pqal-model-pt.zip e ver ori_pqal-model-pt/README.md
+# ori-pqal-pt: extrair ori-pqal-model-pt.zip — ver MODEL.md
 ```
 
 ### 3. Banco de dados

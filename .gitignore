@@ -6,6 +6,5 @@ __pycache__/
 .pytest_cache/
 *.pyc
 
-# Pesos grandes — use ori-pqal-model-pt.zip (Git LFS)
-ori_pqal-model-pt/model.safetensors
-ori_pqal-model-pt/tokenizer.json
+# Pasta do modelo — extrair de ori-pqal-model-pt.zip
+ori_pqal-model-pt/
