@@ -1,15 +1,10 @@
 from langchain_core.tools import tool
-from langchain_ollama import ChatOllama
-from config import OLLAMA_BASE_URL, OLLAMA_MODEL
 from db import queries
-
-SYSTEM_PROMPT = """Você é um assistente de análise de informações clínicas.
-Utilize exclusivamente os dados fornecidos no contexto.
-Não invente informações.
-Não utilize conhecimento externo para preencher informações ausentes."""
+from tools.parse_input import parse_int_id
+from tools.schemas import PacienteIdInput
 
 
-def _montar_contexto(paciente_id: int) -> str:
+def montar_contexto_paciente_dados(paciente_id: int) -> str:
     paciente = queries.buscar_paciente_por_id(paciente_id)
     if not paciente:
         return ""
@@ -17,7 +12,8 @@ def _montar_contexto(paciente_id: int) -> str:
     idade = queries.calcular_idade(paciente["data_nascimento"])
     consulta = queries.buscar_ultima_consulta(paciente_id)
     meds = queries.buscar_medicamentos_ativos(paciente_id)
-    exames = queries.buscar_exames(paciente_id, limite=1)
+    exames = queries.buscar_exames(paciente_id, limite=5)
+    prontuario = queries.buscar_prontuario(paciente_id, limite=3)
 
     linhas = [
         "CONTEXTO ATUAL DO PACIENTE",
@@ -35,43 +31,34 @@ def _montar_contexto(paciente_id: int) -> str:
                 "Pressão:",
                 f"{consulta['pressao_sistolica']}/{consulta['pressao_diastolica']}",
             ])
+        if consulta.get("observacoes"):
+            linhas.extend(["", "Observações:", consulta["observacoes"]])
 
     if meds:
-        linhas.extend(["", "Medicamentos:"])
+        linhas.extend(["", "Medicamentos ativos:"])
         for m in meds:
-            linhas.append(f"{m['medicamento']} - {m['dose']}")
+            linhas.append(f"- {m['medicamento']} {m['dose']} (desde {m['data_inicio']})")
 
     if exames:
-        ultimo = exames[0]
-        linhas.extend([
-            "",
-            "Último exame:",
-            f"{ultimo['tipo']}: {ultimo['resultado']}",
-        ])
+        linhas.extend(["", "Exames recentes:"])
+        for e in exames:
+            linhas.append(f"- {e['data']} | {e['tipo']}: {e['resultado']}")
+
+    if prontuario:
+        linhas.extend(["", "Prontuário recente:"])
+        for p in prontuario:
+            linhas.append(f"- {p['data']}: {p['descricao']}")
 
     return "\n".join(linhas)
 
 
-@tool
-def analisar_paciente(paciente_id: int) -> str:
-    """Agrega todos os dados clínicos do paciente e gera uma análise do estado atual."""
-    contexto = _montar_contexto(paciente_id)
+@tool(args_schema=PacienteIdInput)
+def montar_contexto_paciente(paciente_id: str) -> str:
+    """Agrega todos os dados clínicos estruturados de um paciente pelo ID."""
+    pid = parse_int_id(paciente_id)
+    if pid is None:
+        return f"ID de paciente inválido: '{paciente_id}'. Use apenas o número do ID."
+    contexto = montar_contexto_paciente_dados(pid)
     if not contexto:
-        return f"Paciente {paciente_id} não encontrado."
-
-    llm = ChatOllama(
-        model=OLLAMA_MODEL,
-        base_url=OLLAMA_BASE_URL,
-        temperature=0,
-    )
-
-    prompt = f"""{SYSTEM_PROMPT}
-
-CONTEXTO:
-{contexto}
-
-PERGUNTA:
-Faça uma análise do estado atual do paciente."""
-
-    response = llm.invoke(prompt)
-    return response.content
+        return f"Paciente {pid} não encontrado."
+    return contexto

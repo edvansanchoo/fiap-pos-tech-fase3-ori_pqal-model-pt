@@ -1,0 +1,8 @@
+.env
+.superpowers/
+ori_pqal-model-pt/
+*.jsonl
+teste.txt
+__pycache__/
+.pytest_cache/
+*.pyc
