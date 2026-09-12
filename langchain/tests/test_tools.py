@@ -9,11 +9,26 @@ def test_buscar_paciente_tool_por_nome():
     assert "ID: 1" in resultado
 
 
+def test_buscar_paciente_tool_alias_id():
+    resultado = buscar_paciente.invoke({"id": "1"})
+    assert "João Silva" in resultado
+
+
+def test_buscar_exames_tool_alias_id_paciente():
+    resultado = buscar_exames.invoke({"id_paciente": "1", "limite": "3"})
+    assert "Glicemia" in resultado
+
+
 def test_buscar_exames_tool():
-    resultado = buscar_exames.invoke({"paciente_id": 1, "limite": 3})
+    resultado = buscar_exames.invoke({"paciente_id": "1", "limite": "3"})
+    assert "Glicemia" in resultado
+
+
+def test_buscar_exames_tool_messy_id():
+    resultado = buscar_exames.invoke({"paciente_id": "1 (ID do paciente João)", "limite": ""})
     assert "Glicemia" in resultado
 
 
 def test_buscar_medicamentos_tool():
-    resultado = buscar_medicamentos.invoke({"paciente_id": 1})
+    resultado = buscar_medicamentos.invoke({"paciente_id": "1"})
     assert "Medicamento A" in resultado
