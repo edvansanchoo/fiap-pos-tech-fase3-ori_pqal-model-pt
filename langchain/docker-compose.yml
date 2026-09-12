@@ -1,0 +1,17 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: pqal-postgres
+    environment:
+      POSTGRES_USER: pqal
+      POSTGRES_PASSWORD: pqal
+      POSTGRES_DB: pqal
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pqal -d pqal"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
