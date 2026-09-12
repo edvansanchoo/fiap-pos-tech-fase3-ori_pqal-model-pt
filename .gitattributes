@@ -1,1 +1,1 @@
-ori_pqal-model-pt/model.safetensors filter=lfs diff=lfs merge=lfs -text
+ori-pqal-model-pt.zip filter=lfs diff=lfs merge=lfs -text

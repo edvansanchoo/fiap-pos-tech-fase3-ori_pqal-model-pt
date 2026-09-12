@@ -5,3 +5,7 @@ teste.txt
 __pycache__/
 .pytest_cache/
 *.pyc
+
+# Pesos grandes — use ori-pqal-model-pt.zip (Git LFS)
+ori_pqal-model-pt/model.safetensors
+ori_pqal-model-pt/tokenizer.json

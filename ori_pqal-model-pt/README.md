@@ -5,6 +5,22 @@ Responde **sim**, **não** ou **talvez** com justificativa breve, usando somente
 
 Base: `unsloth/llama-3-8b-bnb-4bit` (LoRA via PEFT).
 
+## Download dos pesos (~151 MB)
+
+Os arquivos grandes (`model.safetensors`, `tokenizer.json`) não ficam soltos no git — vêm no zip na raiz do repositório:
+
+```powershell
+# requer Git LFS instalado
+git lfs install
+git clone <url-do-repositorio>
+cd <repositorio>
+
+# extrair na raiz (cria/sobrescreve ori_pqal-model-pt/)
+Expand-Archive -Path ori-pqal-model-pt.zip -DestinationPath . -Force
+```
+
+> O zip tem ~151 MB e é servido via **Git LFS** (limite do GitHub: 100 MB por arquivo sem LFS).
+
 ---
 
 # Conversão do adapter LoRA para Ollama
