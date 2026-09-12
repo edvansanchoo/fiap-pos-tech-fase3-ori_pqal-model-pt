@@ -10,6 +10,7 @@ docker compose up -d
 pip install -r requirements.txt
 copy .env.example .env
 ollama pull llama3.1:8b
+# ori-pqal-pt: ver ../ori_pqal-model-pt/README.md
 python -m streamlit run app.py
 ```
 

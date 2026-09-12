@@ -14,7 +14,7 @@ MVP de assistente clínico em português que combina **LangChain**, **PostgreSQL
 ```
 ori_pqal-model-pt-20260912T125149Z-1-001/
 ├── README.md                 ← este documento
-├── reame-conversao.md        ← guia para importar ori-pqal-pt no Ollama
+├── reame-conversao.md        ← redireciona para ori_pqal-model-pt/README.md
 ├── .gitignore                ← exclui modelo, .env, datasets .jsonl
 │
 ├── langchain/                ← aplicação principal (chat + chain)
@@ -60,10 +60,12 @@ ori_pqal-model-pt-20260912T125149Z-1-001/
 │   ├── specs/                ← especificação arquitetural
 │   └── plans/                ← plano de implementação
 │
-└── ori_pqal-model-pt/        ← adapter LoRA (não versionado no git)
+└── ori_pqal-model-pt/        ← adapter LoRA + guia de importação Ollama
+    ├── README.md             ← conversão para Ollama (ex-reame-conversao.md)
     ├── Modelfile
     ├── adapter_config.json
-    └── ...                   ← pesos do modelo fine-tuned
+    ├── model.safetensors     ← Git LFS (~160 MB)
+    └── tokenizer*.json
 ```
 
 ---
@@ -310,7 +312,7 @@ Adapter LoRA fine-tuned para **PQAL em português** (respostas sim/não/talvez c
 | `tokenizer.json` | Tokenizer |
 | `Modelfile` | Definição para import no Ollama |
 
-**Não está no git** (muito grande). Para usar no Ollama, siga [`reame-conversao.md`](reame-conversao.md).
+Incluído no repositório via **Git LFS** (`model.safetensors`). Para importar no Ollama, siga [`ori_pqal-model-pt/README.md`](ori_pqal-model-pt/README.md).
 
 O modelo foi treinado com dataset no formato:
 
@@ -359,7 +361,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ```powershell
 ollama pull llama3.1:8b
-# ori-pqal-pt: ver reame-conversao.md
+# ori-pqal-pt: ver ori_pqal-model-pt/README.md
 ```
 
 ### 3. Banco de dados
