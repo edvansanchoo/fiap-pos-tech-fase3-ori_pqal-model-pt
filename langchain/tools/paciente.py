@@ -1,15 +1,18 @@
 from langchain_core.tools import tool
 from db import queries
+from tools.parse_input import parse_int_id
+from tools.schemas import BuscarPacienteInput
 
 
-@tool
+@tool(args_schema=BuscarPacienteInput)
 def buscar_paciente(nome_ou_id: str) -> str:
-    """Busca paciente por nome (parcial) ou ID numérico. Retorna dados básicos do paciente."""
-    nome_ou_id = nome_ou_id.strip()
-    if nome_ou_id.isdigit():
-        paciente = queries.buscar_paciente_por_id(int(nome_ou_id))
+    """Busca UM paciente por nome (parcial) ou ID numérico. Para listar todos, use listar_pacientes_disponiveis."""
+    nome_ou_id = nome_ou_id.strip().strip('"').strip("'")
+    pid = parse_int_id(nome_ou_id)
+    if pid is not None and nome_ou_id and nome_ou_id[0].isdigit():
+        paciente = queries.buscar_paciente_por_id(pid)
         if not paciente:
-            return f"Paciente com ID {nome_ou_id} não encontrado."
+            return f"Paciente com ID {pid} não encontrado."
         idade = queries.calcular_idade(paciente["data_nascimento"])
         return f"ID: {paciente['id']}\nNome: {paciente['nome']}\nIdade: {idade} anos"
 

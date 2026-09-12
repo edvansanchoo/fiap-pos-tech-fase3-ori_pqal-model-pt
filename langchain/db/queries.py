@@ -108,6 +108,112 @@ def buscar_prontuario(paciente_id: int, limite: int = 5) -> list[dict]:
         conn.close()
 
 
+def criar_paciente(nome: str, data_nascimento: date) -> dict:
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO paciente (nome, data_nascimento)
+                VALUES (%s, %s)
+                RETURNING id, nome, data_nascimento
+                """,
+                (nome.strip(), data_nascimento),
+            )
+            row = cur.fetchone()
+            conn.commit()
+            return _row_to_dict(cur, row)
+    finally:
+        conn.close()
+
+
+def atualizar_paciente(
+    paciente_id: int,
+    nome: str | None = None,
+    data_nascimento: date | None = None,
+) -> dict | None:
+    if nome is None and data_nascimento is None:
+        return None
+
+    campos = []
+    valores = []
+    if nome is not None:
+        campos.append("nome = %s")
+        valores.append(nome.strip())
+    if data_nascimento is not None:
+        campos.append("data_nascimento = %s")
+        valores.append(data_nascimento)
+
+    valores.append(paciente_id)
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""
+                UPDATE paciente
+                SET {", ".join(campos)}
+                WHERE id = %s
+                RETURNING id, nome, data_nascimento
+                """,
+                valores,
+            )
+            row = cur.fetchone()
+            conn.commit()
+            return _row_to_dict(cur, row) if row else None
+    finally:
+        conn.close()
+
+
+def registrar_exame(
+    paciente_id: int,
+    tipo: str,
+    resultado: str,
+    data_exame: date | None = None,
+) -> dict:
+    data_exame = data_exame or date.today()
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO exame (paciente_id, data, tipo, resultado)
+                VALUES (%s, %s, %s, %s)
+                RETURNING id, paciente_id, data, tipo, resultado
+                """,
+                (paciente_id, data_exame, tipo.strip(), resultado.strip()),
+            )
+            row = cur.fetchone()
+            conn.commit()
+            return _row_to_dict(cur, row)
+    finally:
+        conn.close()
+
+
+def registrar_medicamento(
+    paciente_id: int,
+    medicamento: str,
+    dose: str,
+    data_inicio: date | None = None,
+) -> dict:
+    data_inicio = data_inicio or date.today()
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO medicamento (paciente_id, medicamento, dose, data_inicio, data_fim)
+                VALUES (%s, %s, %s, %s, NULL)
+                RETURNING id, paciente_id, medicamento, dose, data_inicio, data_fim
+                """,
+                (paciente_id, medicamento.strip(), dose.strip(), data_inicio),
+            )
+            row = cur.fetchone()
+            conn.commit()
+            return _row_to_dict(cur, row)
+    finally:
+        conn.close()
+
+
 def buscar_ultima_consulta(paciente_id: int) -> dict | None:
     conn = get_connection()
     try:
