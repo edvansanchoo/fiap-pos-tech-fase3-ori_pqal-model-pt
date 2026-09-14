@@ -6,17 +6,21 @@
 
 ## Visão geral da divisão
 
-| Parte | Apresentador | Tempo | Foco |
-|-------|--------------|-------|------|
-| **1** | Pessoa A | ~5 min | Fine-tuning: dataset, tradução EN→PT, treinamento LoRA |
-| **2** | Pessoa B | ~4 min | Conversão do adapter para Ollama |
-| **3** | Pessoa C | ~6 min | Sistema LangChain, demo e requisitos do desafio |
+
+| Parte | Apresentador | Tempo  | Foco                                                   |
+| ----- | ------------ | ------ | ------------------------------------------------------ |
+| **1** | Pessoa A     | ~5 min | Fine-tuning: dataset, tradução EN→PT, treinamento LoRA |
+| **2** | Pessoa B     | ~4 min | Conversão do adapter para Ollama                       |
+| **3** | Pessoa C     | ~6 min | Sistema LangChain, demo e requisitos do desafio        |
+
 
 ### Abertura conjunta (30 s — qualquer um)
 
 > "Somos [nomes]. Vamos apresentar o Tech Challenge da Fase 3: um assistente clínico em português, com LLM fine-tuned para PQAL, integrado ao LangChain e a um banco de prontuários. A apresentação tem três partes: treinamento do modelo, deploy no Ollama e demonstração do sistema."
 
 ---
+
+
 
 ## PARTE 1 — Fine-tuning do modelo (Pessoa A)
 
@@ -34,6 +38,8 @@
 
 ---
 
+
+
 ### 1.2 Base de dados original (1 min)
 
 **Fala sugerida:**
@@ -50,6 +56,8 @@
 **Mostrar na tela:** trecho de `fine-tunning/ori_pqal.json` (1 exemplo).
 
 ---
+
+
 
 ### 1.3 Conversão EN → PT-BR (1 min 30 s)
 
@@ -74,6 +82,8 @@
 
 ---
 
+
+
 ### 1.4 Preparação para treino — formato Alpaca (1 min)
 
 **Fala sugerida:**
@@ -95,6 +105,8 @@ ori_pqal.json → translate_pqal.py → ori_pqal_pt-br.json → pqal_to_alpaca()
 ```
 
 ---
+
+
 
 ### 1.5 Treinamento LoRA (1 min 30 s)
 
@@ -119,6 +131,8 @@ ori_pqal.json → translate_pqal.py → ori_pqal_pt-br.json → pqal_to_alpaca()
 
 ---
 
+
+
 ## PARTE 2 — Conversão para Ollama (Pessoa B)
 
 **Requisito atendido:** disponibilizar a LLM customizada para uso no assistente (item 2 do PDF)
@@ -130,6 +144,8 @@ ori_pqal.json → translate_pqal.py → ori_pqal_pt-br.json → pqal_to_alpaca()
 > "O adapter LoRA não roda sozinho — precisa do modelo base LLaMA 3 8B. O **Ollama** permite rodar localmente, sem API externa, integrando o adapter ao modelo base de forma simples."
 
 ---
+
+
 
 ### 2.2 Estrutura do pacote (45 s)
 
@@ -147,6 +163,8 @@ ori_pqal.json → translate_pqal.py → ori_pqal_pt-br.json → pqal_to_alpaca()
 **Mostrar na tela:** árvore de arquivos do `ori_pqal-model-pt/README.md`.
 
 ---
+
+
 
 ### 2.3 Passo a passo da conversão (2 min 30 s)
 
@@ -204,6 +222,8 @@ ori_pqal.json → translate_pqal.py → ori_pqal_pt-br.json → pqal_to_alpaca()
 
 ---
 
+
+
 ### 2.4 Formato de uso PQAL (30 s)
 
 **Fala sugerida:**
@@ -229,6 +249,8 @@ ori_pqal.json → translate_pqal.py → ori_pqal_pt-br.json → pqal_to_alpaca()
 > "Com o `ori-pqal-pt` no Ollama, o modelo fine-tuned está pronto para o assistente. [Pessoa C] demonstra o sistema completo."
 
 ---
+
+
 
 ## PARTE 3 — Sistema e funcionalidades (Pessoa C)
 
@@ -258,6 +280,8 @@ Pergunta → Etapa 1 (agent.py) → Etapa 2 (router.py) → Etapa 3 (chain.py)
 
 ---
 
+
+
 ### 3.2 Etapa 1 — Coleta com LangChain Tools (1 min 30 s)
 
 **Fala sugerida:**
@@ -282,6 +306,8 @@ Pergunta → Etapa 1 (agent.py) → Etapa 2 (router.py) → Etapa 3 (chain.py)
 
 ---
 
+
+
 ### 3.3 Etapa 2 — Roteamento inteligente (1 min)
 
 **Fala sugerida:**
@@ -300,6 +326,8 @@ Pergunta → Etapa 1 (agent.py) → Etapa 2 (router.py) → Etapa 3 (chain.py)
 
 ---
 
+
+
 ### 3.4 Etapa 3 — Geração da resposta (1 min)
 
 **Fala sugerida:**
@@ -313,7 +341,11 @@ Pergunta → Etapa 1 (agent.py) → Etapa 2 (router.py) → Etapa 3 (chain.py)
 
 ---
 
+
+
 ### 3.5 Demonstrações práticas (2 min)
+
+
 
 #### Demo 1 — Dados do sistema
 
@@ -322,6 +354,8 @@ Pergunta → Etapa 1 (agent.py) → Etapa 2 (router.py) → Etapa 3 (chain.py)
 **Fala durante a demo:**
 
 > "O agente monta contexto clínico agregando consulta, exames, medicamentos e prontuário. A resposta cita os dados retornados das tools — **explainability**: a fonte são os registros do banco."
+
+
 
 #### Demo 2 — PQAL com contexto científico
 
@@ -335,11 +369,15 @@ Contexto: A falta de ar é um dos sintomas mais angustiantes experimentados por 
 
 > "Aqui o roteador escolhe `ori-pqal-pt`. A resposta vem no formato sim/não/talvez, fundamentada só no contexto — exatamente o que treinamos na Parte 1."
 
+
+
 #### Demo 3 — Escrita (opcional, se houver tempo)
 
 > "Registre glicemia 110 mg/dL para o paciente 2."
 
 ---
+
+
 
 ### 3.6 Segurança, validação e limitações (1 min)
 
@@ -363,6 +401,8 @@ Contexto: A falta de ar é um dos sintomas mais angustiantes experimentados por 
 
 ---
 
+
+
 ### 3.7 Organização do código e entregáveis (45 s)
 
 **Fala sugerida:**
@@ -384,6 +424,8 @@ Contexto: A falta de ar é um dos sintomas mais angustiantes experimentados por 
 
 ---
 
+
+
 ### Encerramento conjunto (30 s)
 
 **Fala sugerida (qualquer um):**
@@ -392,21 +434,27 @@ Contexto: A falta de ar é um dos sintomas mais angustiantes experimentados por 
 
 ---
 
+
+
 ## Checklist — requisitos do PDF
 
-| Requisito Tech Challenge | Onde é coberto na apresentação |
-|--------------------------|--------------------------------|
-| Fine-tuning com dados médicos | Parte 1 (PubMedQA/PQAL) |
-| Preprocessing e curadoria | Parte 1 (tradução + formato Alpaca) |
-| LangChain + LLM customizada | Partes 2 e 3 |
-| Consultas em base estruturada | Parte 3 (12 tools + PostgreSQL) |
+
+| Requisito Tech Challenge               | Onde é coberto na apresentação                   |
+| -------------------------------------- | ------------------------------------------------ |
+| Fine-tuning com dados médicos          | Parte 1 (PubMedQA/PQAL)                          |
+| Preprocessing e curadoria              | Parte 1 (tradução + formato Alpaca)              |
+| LangChain + LLM customizada            | Partes 2 e 3                                     |
+| Consultas em base estruturada          | Parte 3 (12 tools + PostgreSQL)                  |
 | Contextualização com dados do paciente | Parte 3 (demo João + `montar_contexto_paciente`) |
-| Limites de atuação | Parte 3 (PQAL + roteamento + limitações MVP) |
-| Explainability | Parte 3 (tools visíveis + fonte no banco) |
-| Código modular + README | Parte 3 |
-| Vídeo ≤ 15 min | 5 + 4 + 6 min |
+| Limites de atuação                     | Parte 3 (PQAL + roteamento + limitações MVP)     |
+| Explainability                         | Parte 3 (tools visíveis + fonte no banco)        |
+| Código modular + README                | Parte 3                                          |
+| Vídeo ≤ 15 min                         | 5 + 4 + 6 min                                    |
+
 
 ---
+
+
 
 ## Dicas de produção
 
@@ -417,18 +465,23 @@ Contexto: A falta de ar é um dos sintomas mais angustiantes experimentados por 
 
 ---
 
+
+
 ## Referências no repositório
 
-| Arquivo / pasta | Conteúdo |
-|-----------------|----------|
-| `fine-tunning/translate_pqal.py` | Script de tradução EN→PT-BR |
-| `fine-tunning/fine-tunning.ipynb` | Notebook de fine-tuning LoRA |
-| `fine-tunning/ori_pqal.json` | Dataset original (inglês) |
-| `fine-tunning/ori_pqal_pt-br.json` | Dataset traduzido |
-| `ori_pqal-model-pt/README.md` | Guia de conversão para Ollama |
-| `langchain/app.py` | Interface Streamlit |
-| `langchain/agent.py` | Etapa 1 — coleta com tools |
-| `langchain/router.py` | Etapa 2 — roteamento |
-| `langchain/chain.py` | Etapa 3 — geração de resposta |
-| `README.md` | Documentação completa do projeto |
-| `8IADT - Fase 3 - Tech challenge.pdf` | Requisitos oficiais da Fase 3 |
+
+| Arquivo / pasta                       | Conteúdo                         |
+| ------------------------------------- | -------------------------------- |
+| `fine-tunning/translate_pqal.py`      | Script de tradução EN→PT-BR      |
+| `fine-tunning/fine-tunning.ipynb`     | Notebook de fine-tuning LoRA     |
+| `fine-tunning/ori_pqal.json`          | Dataset original (inglês)        |
+| `fine-tunning/ori_pqal_pt-br.json`    | Dataset traduzido                |
+| `ori_pqal-model-pt/README.md`         | Guia de conversão para Ollama    |
+| `langchain/app.py`                    | Interface Streamlit              |
+| `langchain/agent.py`                  | Etapa 1 — coleta com tools       |
+| `langchain/router.py`                 | Etapa 2 — roteamento             |
+| `langchain/chain.py`                  | Etapa 3 — geração de resposta    |
+| `README.md`                           | Documentação completa do projeto |
+| `8IADT - Fase 3 - Tech challenge.pdf` | Requisitos oficiais da Fase 3    |
+
+
