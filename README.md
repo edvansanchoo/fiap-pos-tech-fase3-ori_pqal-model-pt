@@ -67,57 +67,73 @@ ori_pqal-model-pt-20260912T125149Z-1-001/
 
 ---
 
-## Fluxo LangChain (visão completa)
+## Diagrama do fluxo LangChain
 
-### Diagrama de sequência
+Cada pergunta do usuário passa por **3 etapas** antes de chegar à resposta final. Dois modelos Ollama participam do processo, cada um com um papel diferente.
+
+| Etapa | Arquivo | Modelo | O que faz |
+|-------|---------|--------|-----------|
+| **1 — Coleta** | `agent.py` | `llama3.1:8b` | Interpreta a pergunta e busca dados via tools |
+| **2 — Roteamento** | `router.py` | regras + fallback LLM | Decide qual modelo gera a resposta |
+| **3 — Resposta** | `chain.py` | `llama3.1:8b` **ou** `ori-pqal-pt` | Formata e transmite a resposta em streaming |
+
+### Fluxo geral
 
 ```mermaid
-sequenceDiagram
-    participant U as Usuário
-    participant ST as Streamlit (app.py)
-    participant UI as ui_progress.py
-    participant AG as agent.py
-    participant T as Tools (12)
-    participant DB as PostgreSQL
-    participant RT as router.py
-    participant CH as chain.py
-    participant L1 as llama3.1:8b
-    participant L2 as ori-pqal-pt
+flowchart TD
+    U(["👤 Usuário<br/>pergunta no chat"]) --> APP["Streamlit<br/>app.py"]
+    APP --> Q
 
-    U->>ST: Pergunta no chat
-    ST->>UI: gather_com_progresso_tempo_real()
-    UI->>AG: gather_structured_context()
-
-    alt PQAL com Contexto na mensagem
-        AG->>AG: _coletar_pqal_direto() (sem agente)
-    else Demais perguntas
-        AG->>L1: AgentExecutor (tool calling)
-        loop Cada tool necessária
-            L1->>T: invoca tool
-            T->>DB: SQL parametrizado
-            DB-->>T: dados
-            T-->>AG: observation
-            AG-->>UI: callback progresso (tempo real)
-        end
+    subgraph E1 ["① COLETA — agent.py"]
+        direction TB
+        Q{"PQAL com<br/>'Contexto:' na mensagem?"}
+        Q -->|Sim| AT["Atalho: parse direto<br/>(sem agente)"]
+        Q -->|Não| AG["AgentExecutor<br/>llama3.1:8b"]
+        AG --> T["12 Tools<br/>paciente · exames · PQAL…"]
+        T --> DB[("PostgreSQL")]
+        DB --> T
+        T --> AG
+        AT --> GR["GatherResult<br/>contexto + tools usadas"]
+        AG --> GR
     end
 
-    AG-->>UI: GatherResult (contexto + tools_usadas)
-    UI-->>ST: Etapa 1 concluída
+    GR --> RT
 
-    ST->>RT: classificar_roteamento()
-    RT-->>ST: usar_ori_pqal? + motivo
-    ST-->>U: Etapa 2 exibida na UI
-
-    ST->>CH: stream_resposta_chain()
-
-    alt Dados do sistema / PQAL sem contexto
-        CH->>L1: resposta_sistema.py
-        L1-->>U: stream resposta formatada
-    else PQAL com contexto científico
-        CH->>L2: ORI_PROMPT + contexto
-        L2-->>U: stream sim/não/talvez
+    subgraph E2 ["② ROTEAMENTO — router.py"]
+        direction TB
+        RT{"Qual modelo<br/>responde?"}
+        RT -->|dados do sistema<br/>ou PQAL sem contexto| SYS["llama3.1:8b"]
+        RT -->|PQAL com contexto<br/>científico| PQAL["ori-pqal-pt"]
     end
+
+    subgraph E3 ["③ RESPOSTA — chain.py"]
+        direction LR
+        E3A["resposta_sistema.py<br/>formata dados do banco"]
+        E3B["ORI_PROMPT<br/>sim / não / talvez"]
+    end
+
+    SYS --> E3A
+    PQAL --> E3B
+    E3A --> OUT(["👤 Resposta em streaming"])
+    E3B --> OUT
 ```
+
+### Quando cada modelo é usado
+
+```mermaid
+flowchart LR
+    P["Pergunta do usuário"] --> R{router.py}
+
+    R -->|"Listar pacientes, exames,<br/>medicamentos, cadastro…"| A["llama3.1:8b<br/>resposta_sistema.py"]
+    R -->|"PQAL sem contexto<br/>(só Pergunta:)"| B["llama3.1:8b<br/>explica o formato"]
+    R -->|"PQAL com Contexto:<br/>científico"| C["ori-pqal-pt<br/>sim / não / talvez"]
+
+    A --> F["Resposta final"]
+    B --> F
+    C --> F
+```
+
+> **Regra de ouro:** as 12 tools **nunca chamam LLM** — apenas consultam ou gravam no banco. Todo uso de modelo acontece em `agent.py` (coleta), `router.py` (fallback) e `chain.py` (resposta).
 
 ### Pipeline em 3 etapas
 
